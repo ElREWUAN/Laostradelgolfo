@@ -62,7 +62,7 @@ class PantallaSucursal extends StatelessWidget {
               Icon(Icons.store, size: 80, color: Colors.teal),
               SizedBox(height: 20),
               Text(
-                'Mr. Pulpo - Matriz',
+                'La Ostra del Golfo - Xalapa',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
               Text(

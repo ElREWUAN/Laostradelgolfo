@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../responsive.dart';
+import '../datos/menu_ostra.dart';
 
 class PantallaProductos extends StatefulWidget {
   const PantallaProductos({super.key});
@@ -16,6 +17,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
   final TextEditingController _costoController = TextEditingController();
 
   String tipoSeleccionado = 'ELAB';
+  String categoriaSeleccionada = categoriasOstra.first;
   String? claveSeleccionada;
 
   void _limpiarFormulario() {
@@ -25,63 +27,14 @@ class _PantallaProductosState extends State<PantallaProductos> {
       _precioController.clear();
       _costoController.clear();
       tipoSeleccionado = 'ELAB';
+      categoriaSeleccionada = categoriasOstra.first;
       claveSeleccionada = null;
     });
   }
 
   // BOTÓN MÁGICO PARA SUBIR TU MENÚ ORIGINAL
   Future<void> _subirMenuMagico() async {
-    final menuViejo = [
-      {
-        'clave': 'P001',
-        'nombre': 'HELADO',
-        'precio': 65.00,
-        'costo': 20.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'C001',
-        'nombre': 'CAFÉ AMERICANO',
-        'precio': 50.00,
-        'costo': 15.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'M001',
-        'nombre': 'ARRACHERA',
-        'precio': 235.00,
-        'costo': 80.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'X001',
-        'nombre': 'CÓCTEL CAMARÓN CHICO',
-        'precio': 100.00,
-        'costo': 40.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'E001',
-        'nombre': 'EMPANADA MINILLA',
-        'precio': 30.00,
-        'costo': 10.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'S001',
-        'nombre': 'TORTA DE MARISCOS',
-        'precio': 230.00,
-        'costo': 70.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'P002',
-        'nombre': 'PULPOS AL MOJO DE AJO',
-        'precio': 265.00,
-        'costo': 90.00,
-        'tipo': 'ELAB',
-      },
-    ];
+    final menuViejo = construirMenuOstra();
 
     try {
       for (var item in menuViejo) {
@@ -93,7 +46,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('¡Menú original subido a la nube! ☁️🐙'),
+            content: Text('¡Menú de La Ostra del Golfo subido a la nube! ☁️🦪'),
             backgroundColor: Colors.purple,
           ),
         );
@@ -122,6 +75,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
       'precio': double.tryParse(_precioController.text) ?? 0.0,
       'costo': double.tryParse(_costoController.text) ?? 0.0,
       'tipo': tipoSeleccionado,
+      'categoria': categoriaSeleccionada,
       'ultima_modificacion': DateTime.now(),
     };
 
@@ -204,9 +158,16 @@ class _PantallaProductosState extends State<PantallaProductos> {
                         ],
                       ),
                       const SizedBox(height: 16),
+                      _crearDropdown(
+                        'Categoría',
+                        categoriasOstra,
+                        categoriaSeleccionada,
+                        (val) => setState(() => categoriaSeleccionada = val!),
+                      ),
+                      const SizedBox(height: 16),
                       _crearCampoTexto(
                         'Nombre',
-                        'Ej. ARRACHERA',
+                        'Ej. CÓCTEL DE CAMARÓN MED',
                         _nombreController,
                       ),
                       const SizedBox(height: 16),
@@ -279,7 +240,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
                         child: ElevatedButton.icon(
                           onPressed: _subirMenuMagico,
                           icon: const Icon(Icons.cloud_upload),
-                          label: const Text('SUBIR MENÚ ORIGINAL DE GOLPE'),
+                          label: const Text('SUBIR MENÚ LA OSTRA DEL GOLFO'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.purple,
                             foregroundColor: Colors.white,
@@ -312,7 +273,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
                   const Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text(
-                      'Menú Mr. Pulpo Registrado',
+                      'Menú La Ostra del Golfo Registrado',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -340,6 +301,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
                             showCheckboxColumn: false,
                             columns: const [
                               DataColumn(label: Text('Clave')),
+                              DataColumn(label: Text('Categoría')),
                               DataColumn(label: Text('Nombre')),
                               DataColumn(label: Text('Precio')),
                               DataColumn(label: Text('Tipo')),
@@ -358,10 +320,15 @@ class _PantallaProductosState extends State<PantallaProductos> {
                                     _costoController.text = d['costo']
                                         .toString();
                                     tipoSeleccionado = d['tipo'] ?? 'ELAB';
+                                    categoriaSeleccionada =
+                                        categoriasOstra.contains(d['categoria'])
+                                        ? d['categoria']
+                                        : categoriasOstra.first;
                                   });
                                 },
                                 cells: [
                                   DataCell(Text(doc.id)),
+                                  DataCell(Text(d['categoria'] ?? '')),
                                   DataCell(Text(d['nombre'] ?? '')),
                                   DataCell(Text('\$${d['precio']}')),
                                   DataCell(Text(d['tipo'] ?? '')),

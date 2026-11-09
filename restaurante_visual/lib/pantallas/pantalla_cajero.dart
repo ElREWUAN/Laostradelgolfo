@@ -29,7 +29,7 @@ class PantallaCajero extends StatelessWidget {
           crossAxisAlignment: pw.CrossAxisAlignment.center,
           children: [
             pw.Text(
-              '   *** MR. PULPO POS *** ',
+              '   *** LA OSTRA DEL GOLFO *** ',
               style: pw.TextStyle(
                 font: pw.Font.courier(),
                 fontSize: 10,
@@ -225,7 +225,7 @@ class PantallaCajero extends StatelessWidget {
               ),
             ),
             pw.SizedBox(height: 8),
-            pw.Text('MR. PULPO - Marisquería y Restaurante'),
+            pw.Text('LA OSTRA DEL GOLFO - Ostionería desde 1961'),
             pw.Text('Folio: ${folio.substring(0, 8).toUpperCase()}'),
             pw.Text('Mesa: $mesa'),
             pw.Text(

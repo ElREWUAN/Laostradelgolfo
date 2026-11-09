@@ -70,12 +70,13 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
 
     pw.MemoryImage? logoImage;
     try {
-      // 👇 CAMBIADO A LOGO.JPG
-      final ByteData bytes = await rootBundle.load('assets/logo.jpg');
+      final ByteData bytes = await rootBundle.load('lib/assets/logo_nuevo.jpg');
       final Uint8List logoBytes = bytes.buffer.asUint8List();
       logoImage = pw.MemoryImage(logoBytes);
     } catch (e) {
-      debugPrint("Aviso: No se localizó assets/logo.jpg en tu proyecto: $e");
+      debugPrint(
+        "Aviso: No se localizó lib/assets/logo_nuevo.jpg en tu proyecto: $e",
+      );
     }
 
     pdf.addPage(
@@ -102,7 +103,7 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          'MR. PULPO',
+                          'LA OSTRA DEL GOLFO',
                           style: pw.TextStyle(
                             color: PdfColors.white,
                             fontSize: 26,
@@ -293,7 +294,7 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
               ),
             ),
             pw.SizedBox(height: 8),
-            pw.Text('MR. PULPO - Marisquería y Restaurante'),
+            pw.Text('LA OSTRA DEL GOLFO - Ostionería desde 1961'),
             pw.Text('Folio: $numero'),
             pw.Text(
               'Fecha: ${fecha.day.toString().padLeft(2, '0')}/'

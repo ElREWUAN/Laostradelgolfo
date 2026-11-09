@@ -567,7 +567,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'Panel de Administración Mr. Pulpo',
+            'Panel de Administración La Ostra del Golfo',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           backgroundColor: const Color(0xFF0A192F),

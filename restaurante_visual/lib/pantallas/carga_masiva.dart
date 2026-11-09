@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../datos/menu_ostra.dart';
 
 class CargaMasiva extends StatelessWidget {
   CargaMasiva({super.key});
@@ -89,30 +90,76 @@ class CargaMasiva extends StatelessWidget {
     }
   }
 
+  Future<void> _subirMenu(BuildContext context) async {
+    final firestore = FirebaseFirestore.instance;
+    final menu = construirMenuOstra();
+    try {
+      // Firestore permite máx. 500 operaciones por batch
+      for (var i = 0; i < menu.length; i += 400) {
+        final batch = firestore.batch();
+        for (final prod in menu.skip(i).take(400)) {
+          batch.set(firestore.collection('productos').doc(prod['clave'] as String), {
+            ...prod,
+            'fecha_registro': FieldValue.serverTimestamp(),
+          });
+        }
+        await batch.commit();
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✅ Menú de La Ostra del Golfo cargado (${menu.length} productos)'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al subir el menú: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text('Inyección de Insumos'),
+        title: const Text('Carga inicial de datos'),
         backgroundColor: Colors.indigo,
       ),
       body: Center(
-        child: ElevatedButton.icon(
-          onPressed: () => _subirTodo(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.amber,
-            padding: const EdgeInsets.all(20),
-          ),
-          icon: const Icon(Icons.kitchen, color: Colors.black, size: 30),
-          label: const Text(
-            'INYECTAR MATERIA PRIMA',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton.icon(
+              onPressed: () => _subirMenu(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.lightBlueAccent,
+                padding: const EdgeInsets.all(20),
+              ),
+              icon: const Icon(Icons.restaurant_menu, color: Colors.black, size: 30),
+              label: const Text(
+                'CARGAR MENÚ LA OSTRA DEL GOLFO',
+                style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => _subirTodo(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber,
+                padding: const EdgeInsets.all(20),
+              ),
+              icon: const Icon(Icons.kitchen, color: Colors.black, size: 30),
+              label: const Text(
+                'INYECTAR MATERIA PRIMA',
+                style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ),
       ),
     );

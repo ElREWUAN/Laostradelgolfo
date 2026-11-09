@@ -11,17 +11,17 @@ void main() async {
   // Inicializa la conexión con Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MrPulpoApp());
+  runApp(const LaOstraDelGolfoApp());
 }
 
-class MrPulpoApp extends StatelessWidget {
-  const MrPulpoApp({super.key});
+class LaOstraDelGolfoApp extends StatelessWidget {
+  const LaOstraDelGolfoApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Mr. Pulpo POS',
+      title: 'La Ostra del Golfo POS',
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(

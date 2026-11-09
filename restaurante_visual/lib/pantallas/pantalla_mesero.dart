@@ -1,3 +1,4 @@
+import '../datos/menu_ostra.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_screen.dart';
@@ -399,6 +400,12 @@ class _PantallaMeseroState extends State<PantallaMesero> {
     if (c.contains('pulpo')) return Icons.water;
     if (c.contains('robalo') || c.contains('pescado')) return Icons.sailing;
     if (c.contains('ensalada')) return Icons.eco;
+    if (c.contains('campechana')) return Icons.rice_bowl;
+    if (c.contains('tostada')) return Icons.lunch_dining;
+    if (c.contains('extra')) return Icons.add_circle_outline;
+    if (c.contains('platillo')) return Icons.dinner_dining;
+    if (c.contains('cerveza')) return Icons.sports_bar;
+    if (c.contains('bebida')) return Icons.local_drink;
     return Icons.fastfood;
   }
 
@@ -414,6 +421,12 @@ class _PantallaMeseroState extends State<PantallaMesero> {
     if (c.contains('pulpo')) return Colors.indigo.shade300;
     if (c.contains('pescado')) return Colors.blue.shade400;
     if (c.contains('ensalada')) return Colors.green.shade400;
+    if (c.contains('campechana')) return Colors.deepOrange.shade400;
+    if (c.contains('tostada')) return Colors.brown.shade300;
+    if (c.contains('extra')) return Colors.blueGrey.shade300;
+    if (c.contains('platillo')) return Colors.orange.shade400;
+    if (c.contains('cerveza')) return Colors.amber.shade600;
+    if (c.contains('bebida')) return Colors.lightBlue.shade400;
     return Colors.grey.shade400;
   }
 
@@ -450,6 +463,12 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                   .where((categoria) => categoria.isNotEmpty)
                   .toSet()
                   .toList();
+              // Ordenar según el orden del menú impreso
+              int pos(String c) {
+                final i = categoriasOstra.indexOf(c);
+                return i == -1 ? 999 : i;
+              }
+              categorias.sort((a, b) => pos(a).compareTo(pos(b)));
               return LayoutBuilder(
                 builder: (context, constraints) => GridView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
