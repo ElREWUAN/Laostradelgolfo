@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
 class Brand {
-  static const navy = Color(0xFF102A43);
-  static const navyLight = Color(0xFF243B53);
-  static const teal = Color(0xFF0F766E);
-  static const aqua = Color(0xFF14B8A6);
-  static const coral = Color(0xFFF97316);
+  static const logoUrl = 'https://i.ibb.co/4w3b9qyd/logo-nuevo.jpg';
+
+  static const navy = Color(0xFF0D8CA6);
+  static const navyLight = Color(0xFF13B4E9);
+  static const teal = Color(0xFF0D8CA6);
+  static const aqua = Color(0xFF13B4E9);
+  static const coral = Color(0xFFF26B04);
   static const cream = Color(0xFFFFFBF5);
-  static const background = Color(0xFFF4F7F8);
-  static const ink = Color(0xFF172B4D);
-  static const muted = Color(0xFF627D98);
+  static const background = Color(0xFFF0FAFC);
+  static const ink = Color(0xFF263238);
+  static const muted = Color(0xFF607D8B);
   static const success = Color(0xFF16803C);
   static const danger = Color(0xFFB42318);
 

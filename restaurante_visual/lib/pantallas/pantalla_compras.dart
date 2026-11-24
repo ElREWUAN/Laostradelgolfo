@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../responsive.dart';
+import '../ui/brand.dart';
 
 class PantallaCompras extends StatefulWidget {
   const PantallaCompras({super.key});
@@ -180,7 +181,7 @@ class _PantallaComprasState extends State<PantallaCompras> {
       builder: (context) => AlertDialog(
         title: const Text(
           'Detalle de Insumos Comprados',
-          style: TextStyle(color: Colors.indigo, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Brand.teal, fontWeight: FontWeight.bold),
         ),
         content: SizedBox(
           width: 300,

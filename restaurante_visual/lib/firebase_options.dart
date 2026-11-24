@@ -41,13 +41,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDrGvDb6WKucPysg3i773IlAIsM_MP772c',
-    appId: '1:56449441054:web:0f873415cf5ba7756efd0f',
-    messagingSenderId: '56449441054',
-    projectId: 'mr-pulpo-pos',
-    authDomain: 'mr-pulpo-pos.firebaseapp.com',
-    storageBucket: 'mr-pulpo-pos.firebasestorage.app',
-    measurementId: 'G-GELCCP4H0E',
+    apiKey: 'AIzaSyC8Gb0EMw3pKQfKV9lcEDS-IN_ElYi5eyQ',
+    appId: '1:579251225277:web:44148c3228ec3f0dcfadd4',
+    messagingSenderId: '579251225277',
+    projectId: 'laostradelgolfo-ac6c2',
+    authDomain: 'laostradelgolfo-ac6c2.firebaseapp.com',
+    storageBucket: 'laostradelgolfo-ac6c2.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -77,12 +76,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDrGvDb6WKucPysg3i773IlAIsM_MP772c',
-    appId: '1:56449441054:web:8fec00a540b18bb36efd0f',
-    messagingSenderId: '56449441054',
-    projectId: 'mr-pulpo-pos',
-    authDomain: 'mr-pulpo-pos.firebaseapp.com',
-    storageBucket: 'mr-pulpo-pos.firebasestorage.app',
-    measurementId: 'G-ZGX3EERJ9D',
+    apiKey: 'AIzaSyC8Gb0EMw3pKQfKV9lcEDS-IN_ElYi5eyQ',
+    appId: '1:579251225277:web:44148c3228ec3f0dcfadd4',
+    messagingSenderId: '579251225277',
+    projectId: 'laostradelgolfo-ac6c2',
+    authDomain: 'laostradelgolfo-ac6c2.firebaseapp.com',
+    storageBucket: 'laostradelgolfo-ac6c2.firebasestorage.app',
   );
 }

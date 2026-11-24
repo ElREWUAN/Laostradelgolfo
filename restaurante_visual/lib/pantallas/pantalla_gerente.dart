@@ -6,6 +6,7 @@ import 'pantalla_compras.dart';
 import 'pantalla_contabilidad.dart';
 import 'pantalla_cajero.dart';
 import '../responsive.dart';
+import '../ui/brand.dart';
 
 class UpperTextFormatterGerente extends TextInputFormatter {
   @override
@@ -175,7 +176,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
         title: Text(
           'Ingredientes: $nombrePlatillo',
           style: const TextStyle(
-            color: Colors.indigo,
+            color: Brand.teal,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -490,7 +491,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                           IconButton(
                             icon: const Icon(
                               Icons.add_circle,
-                              color: Colors.indigo,
+                              color: Brand.teal,
                             ),
                             onPressed: () {
                               if (_rInsumoSeleccionado == null ||
@@ -629,7 +630,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.blueGrey[50],
+                color: Brand.background,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: SingleChildScrollView(
@@ -641,7 +642,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: Colors.indigo,
+                        color: Brand.teal,
                       ),
                     ),
                     const SizedBox(height: 15),
@@ -653,7 +654,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                       'Agregar Ingredientes',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.indigo,
+                        color: Brand.teal,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -775,7 +776,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                         IconButton(
                           icon: const Icon(
                             Icons.add_circle,
-                            color: Colors.indigo,
+                            color: Brand.teal,
                             size: 35,
                           ),
                           padding: EdgeInsets.zero,
@@ -1061,7 +1062,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.blueGrey[50],
+                color: Brand.background,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: SingleChildScrollView(
@@ -1073,7 +1074,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: Colors.indigo,
+                        color: Brand.teal,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -1223,7 +1224,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                                 e['rol'] ?? '',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.blueGrey,
+                                  color: Brand.muted,
                                 ),
                               ),
                             ),
@@ -1288,7 +1289,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.blueGrey[50],
+                color: Brand.background,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: SingleChildScrollView(
@@ -1300,7 +1301,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: Colors.indigo,
+                        color: Brand.teal,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -1585,7 +1586,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.blueGrey[50],
+                color: Brand.background,
                 borderRadius: BorderRadius.circular(15),
               ),
               child: SingleChildScrollView(
@@ -1599,7 +1600,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
-                        color: Colors.indigo,
+                        color: Brand.teal,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -1614,7 +1615,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                       'Agregar Productos que Vende',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Colors.indigo,
+                        color: Brand.teal,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -1672,7 +1673,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                         IconButton(
                           icon: const Icon(
                             Icons.add_circle,
-                            color: Colors.indigo,
+                            color: Brand.teal,
                             size: 35,
                           ),
                           padding: EdgeInsets.zero,
@@ -1875,7 +1876,7 @@ class _PantallaGerenteState extends State<PantallaGerente> {
                                 p['producto'] ?? 'N/A',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.blueGrey,
+                                  color: Brand.muted,
                                 ),
                               ),
                             ),

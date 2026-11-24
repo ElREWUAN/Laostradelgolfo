@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'login_screen.dart';
 import '../responsive.dart';
 import '../ui/brand.dart';
+import '../catalogo_menu.dart';
 
 class PantallaMesero extends StatefulWidget {
   const PantallaMesero({super.key});
@@ -286,7 +287,7 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: Brand.ink,
                   ),
                 ),
               ),
@@ -389,32 +390,11 @@ class _PantallaMeseroState extends State<PantallaMesero> {
   }
 
   IconData _getIconForCategory(String cat) {
-    String c = cat.toLowerCase();
-    if (c.contains('entrada')) return Icons.restaurant;
-    if (c.contains('coctel')) return Icons.local_bar;
-    if (c.contains('sopa') || c.contains('chilpachole'))
-      return Icons.ramen_dining;
-    if (c.contains('especialidad')) return Icons.star;
-    if (c.contains('camaron') || c.contains('camarón')) return Icons.set_meal;
-    if (c.contains('pulpo')) return Icons.water;
-    if (c.contains('robalo') || c.contains('pescado')) return Icons.sailing;
-    if (c.contains('ensalada')) return Icons.eco;
-    return Icons.fastfood;
+    return CatalogoMenu.categoriaPorNombre(cat)?.icono ?? Icons.fastfood;
   }
 
   Color _getColorForCategory(String cat) {
-    String c = cat.toLowerCase();
-    if (c.contains('entrada')) return Colors.orange.shade300;
-    if (c.contains('coctel')) return Colors.pink.shade200;
-    if (c.contains('sopa') || c.contains('chilpachole'))
-      return Colors.deepOrange.shade300;
-    if (c.contains('especialidad')) return Colors.amber.shade400;
-    if (c.contains('concha')) return Colors.teal.shade300;
-    if (c.contains('pulpa')) return Colors.cyan.shade300;
-    if (c.contains('pulpo')) return Colors.indigo.shade300;
-    if (c.contains('pescado')) return Colors.blue.shade400;
-    if (c.contains('ensalada')) return Colors.green.shade400;
-    return Colors.grey.shade400;
+    return CatalogoMenu.categoriaPorNombre(cat)?.color ?? Colors.grey.shade400;
   }
 
   Widget _buildGridCategorias() {
@@ -428,7 +408,7 @@ class _PantallaMeseroState extends State<PantallaMesero> {
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F172A),
+              color: Brand.ink,
             ),
           ),
         ),
@@ -438,9 +418,18 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                 .collection('productos')
                 .snapshots(),
             builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error al cargar categorías: ${snapshot.error}'),
+                );
+              }
               if (!snapshot.hasData)
                 return const Center(child: CircularProgressIndicator());
-              final categorias = snapshot.data!.docs
+              final categoriasExistentes = snapshot.data!.docs
+                  .where((doc) {
+                    final datos = doc.data() as Map<String, dynamic>;
+                    return datos['tipo']?.toString() != 'INGREDIEN';
+                  })
                   .map(
                     (doc) =>
                         (doc.data() as Map<String, dynamic>)['categoria']
@@ -448,7 +437,23 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                         '',
                   )
                   .where((categoria) => categoria.isNotEmpty)
-                  .toSet()
+                  .toSet();
+              if (categoriasExistentes.isEmpty) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Text(
+                      'El catálogo de productos está vacío. '
+                      'Entra como gerente > Productos y pulsa '
+                      '"REEMPLAZAR CON EL MENÚ NUEVO".',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              }
+              final categorias = CatalogoMenu.categorias
+                  .map((categoria) => categoria.nombre)
+                  .where(categoriasExistentes.contains)
                   .toList();
               return LayoutBuilder(
                 builder: (context, constraints) => GridView.builder(
@@ -531,7 +536,7 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: Brand.ink,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -546,9 +551,26 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                 .where('categoria', isEqualTo: _categoriaSeleccionada)
                 .snapshots(),
             builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Error al cargar productos: ${snapshot.error}'),
+                );
+              }
               if (!snapshot.hasData)
                 return const Center(child: CircularProgressIndicator());
-              final docs = snapshot.data!.docs;
+              final docs = snapshot.data!.docs.where((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return data['tipo']?.toString() != 'INGREDIEN';
+              }).toList();
+              if (docs.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'Esta categoría no tiene productos. '
+                    'Revisa el catálogo en Productos.',
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
               return LayoutBuilder(
                 builder: (context, constraints) => GridView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -695,7 +717,7 @@ class _PantallaMeseroState extends State<PantallaMesero> {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF0F172A),
+              color: Brand.ink,
             ),
           ),
         ),
@@ -708,7 +730,7 @@ class _PantallaMeseroState extends State<PantallaMesero> {
             child: const Text(
               'PEDIDOS ENVIADOS',
               style: TextStyle(
-                color: Colors.blueGrey,
+                color: Brand.muted,
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
               ),
@@ -787,7 +809,7 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: Colors.blueGrey,
+                    color: Brand.muted,
                   ),
                 ),
                 Text(
@@ -795,7 +817,7 @@ class _PantallaMeseroState extends State<PantallaMesero> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
-                    color: Colors.blueGrey,
+                    color: Brand.muted,
                   ),
                 ),
               ],

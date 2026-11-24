@@ -5,6 +5,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../responsive.dart';
+import '../ui/brand.dart';
 
 class PantallaContabilidad extends StatefulWidget {
   const PantallaContabilidad({super.key});
@@ -70,12 +71,12 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
 
     pw.MemoryImage? logoImage;
     try {
-      // 👇 CAMBIADO A LOGO.JPG
-      final ByteData bytes = await rootBundle.load('assets/logo.jpg');
-      final Uint8List logoBytes = bytes.buffer.asUint8List();
-      logoImage = pw.MemoryImage(logoBytes);
+      final bytes = await NetworkAssetBundle(
+        Uri.parse(Brand.logoUrl),
+      ).load(Brand.logoUrl);
+      logoImage = pw.MemoryImage(bytes.buffer.asUint8List());
     } catch (e) {
-      debugPrint("Aviso: No se localizó assets/logo.jpg en tu proyecto: $e");
+      debugPrint('Aviso: no se pudo cargar el logo del informe: $e');
     }
 
     pdf.addPage(
@@ -466,9 +467,7 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
                                             ),
                                           ),
                                           selected: _filtroTiempo == p,
-                                          selectedColor: const Color(
-                                            0xFF0F172A,
-                                          ),
+                                          selectedColor: Brand.navy,
                                           labelStyle: TextStyle(
                                             color: _filtroTiempo == p
                                                 ? Colors.white
@@ -508,7 +507,7 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
                                     ),
                                   ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0F172A),
+                                    backgroundColor: Brand.navy,
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
@@ -528,13 +527,13 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
                                   icon: const Icon(Icons.receipt_long),
                                   label: const Text('GENERAR FACTURA'),
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: const Color(0xFF0F172A),
+                                    foregroundColor: Brand.navy,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 16,
                                       vertical: 15,
                                     ),
                                     side: const BorderSide(
-                                      color: Color(0xFF0F172A),
+                                      color: Brand.navy,
                                     ),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
@@ -689,14 +688,14 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
                                     child: _tarjetaUI(
                                       'Flujo de Caja Real',
                                       cajaReal,
-                                      const Color(0xFF0F172A),
+                                      Brand.navy,
                                     ),
                                   )
                                 : Expanded(
                                     child: _tarjetaUI(
                                       'Flujo de Caja Real',
                                       cajaReal,
-                                      const Color(0xFF0F172A),
+                                      Brand.navy,
                                     ),
                                   ),
                           ],
@@ -731,7 +730,7 @@ class _PantallaContabilidadState extends State<PantallaContabilidad> {
                                 radius: 16,
                                 backgroundColor: i == 0
                                     ? Colors.amber
-                                    : const Color(0xFF0F172A),
+                                    : Brand.navy,
                                 child: Text(
                                   '${i + 1}',
                                   style: const TextStyle(

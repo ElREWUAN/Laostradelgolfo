@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../responsive.dart';
+import '../catalogo_menu.dart';
 
 class PantallaProductos extends StatefulWidget {
   const PantallaProductos({super.key});
@@ -16,6 +17,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
   final TextEditingController _costoController = TextEditingController();
 
   String tipoSeleccionado = 'ELAB';
+  String categoriaSeleccionada = CatalogoMenu.categorias.first.nombre;
   String? claveSeleccionada;
 
   void _limpiarFormulario() {
@@ -25,76 +27,85 @@ class _PantallaProductosState extends State<PantallaProductos> {
       _precioController.clear();
       _costoController.clear();
       tipoSeleccionado = 'ELAB';
+      categoriaSeleccionada = CatalogoMenu.categorias.first.nombre;
       claveSeleccionada = null;
     });
   }
 
-  // BOTÓN MÁGICO PARA SUBIR TU MENÚ ORIGINAL
-  Future<void> _subirMenuMagico() async {
-    final menuViejo = [
-      {
-        'clave': 'P001',
-        'nombre': 'HELADO',
-        'precio': 65.00,
-        'costo': 20.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'C001',
-        'nombre': 'CAFÉ AMERICANO',
-        'precio': 50.00,
-        'costo': 15.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'M001',
-        'nombre': 'ARRACHERA',
-        'precio': 235.00,
-        'costo': 80.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'X001',
-        'nombre': 'CÓCTEL CAMARÓN CHICO',
-        'precio': 100.00,
-        'costo': 40.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'E001',
-        'nombre': 'EMPANADA MINILLA',
-        'precio': 30.00,
-        'costo': 10.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'S001',
-        'nombre': 'TORTA DE MARISCOS',
-        'precio': 230.00,
-        'costo': 70.00,
-        'tipo': 'ELAB',
-      },
-      {
-        'clave': 'P002',
-        'nombre': 'PULPOS AL MOJO DE AJO',
-        'precio': 265.00,
-        'costo': 90.00,
-        'tipo': 'ELAB',
-      },
-    ];
-
+  Future<void> _reemplazarMenu() async {
     try {
-      for (var item in menuViejo) {
-        await FirebaseFirestore.instance
-            .collection('productos')
-            .doc(item['clave'] as String)
-            .set(item);
+      final coleccion = FirebaseFirestore.instance.collection('productos');
+      final existentes = await coleccion.get();
+      const clavesMenuAnterior = {
+        'P001',
+        'C001',
+        'M001',
+        'X001',
+        'E001',
+        'S001',
+        'P002',
+      };
+      final clavesNuevas = CatalogoMenu.productos
+          .map((producto) => producto.clave)
+          .toSet();
+      final porEliminar = existentes.docs.where((documento) {
+        final datos = documento.data();
+        if (datos['tipo']?.toString() == 'INGREDIEN') return false;
+        final tipo = datos['tipo']?.toString();
+        final tieneCategoria =
+            datos['categoria']?.toString().trim().isNotEmpty ?? false;
+        final esProductoMenu =
+            tipo == 'ELAB' || tipo == 'NOELAB' || tieneCategoria;
+        return (esProductoMenu || clavesMenuAnterior.contains(documento.id)) &&
+            !clavesNuevas.contains(documento.id);
+      }).toList();
+
+      final confirmado = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Reemplazar menú'),
+          content: Text(
+            'Se reemplazarán ${porEliminar.length} productos anteriores por '
+            '${CatalogoMenu.productos.length} productos del menú nuevo. '
+            'Se conservarán ingredientes y registros sin tipo de menú ni '
+            'categoría; las recetas y comandas históricas no se modificarán.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Reemplazar'),
+            ),
+          ],
+        ),
+      );
+      if (confirmado != true) return;
+
+      final operaciones = porEliminar.length + CatalogoMenu.productos.length;
+      if (operaciones > 500) {
+        throw StateError(
+          'El catálogo supera el límite de 500 operaciones por lote. '
+          'No se realizaron cambios.',
+        );
       }
+
+      final batch = FirebaseFirestore.instance.batch();
+      for (final documento in porEliminar) {
+        batch.delete(documento.reference);
+      }
+      for (final producto in CatalogoMenu.productos) {
+        batch.set(coleccion.doc(producto.clave), producto.toFirestore());
+      }
+      await batch.commit();
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('¡Menú original subido a la nube! ☁️🐙'),
-            backgroundColor: Colors.purple,
+            content: Text('Menú actualizado correctamente.'),
+            backgroundColor: Colors.green,
           ),
         );
       }
@@ -122,6 +133,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
       'precio': double.tryParse(_precioController.text) ?? 0.0,
       'costo': double.tryParse(_costoController.text) ?? 0.0,
       'tipo': tipoSeleccionado,
+      'categoria': categoriaSeleccionada,
       'ultima_modificacion': DateTime.now(),
     };
 
@@ -210,6 +222,16 @@ class _PantallaProductosState extends State<PantallaProductos> {
                         _nombreController,
                       ),
                       const SizedBox(height: 16),
+                      _crearDropdown(
+                        'Categoría',
+                        CatalogoMenu.categorias
+                            .map((categoria) => categoria.nombre)
+                            .toList(),
+                        categoriaSeleccionada,
+                        (valor) =>
+                            setState(() => categoriaSeleccionada = valor!),
+                      ),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
@@ -277,9 +299,9 @@ class _PantallaProductosState extends State<PantallaProductos> {
                       // BOTÓN MÁGICO
                       Center(
                         child: ElevatedButton.icon(
-                          onPressed: _subirMenuMagico,
+                          onPressed: _reemplazarMenu,
                           icon: const Icon(Icons.cloud_upload),
-                          label: const Text('SUBIR MENÚ ORIGINAL DE GOLPE'),
+                          label: const Text('REEMPLAZAR CON EL MENÚ NUEVO'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.purple,
                             foregroundColor: Colors.white,
@@ -312,7 +334,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
                   const Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text(
-                      'Menú Mr. Pulpo Registrado',
+                      'Productos del menú',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -326,10 +348,22 @@ class _PantallaProductosState extends State<PantallaProductos> {
                           .orderBy(FieldPath.documentId)
                           .snapshots(),
                       builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              'Error al cargar productos: ${snapshot.error}',
+                            ),
+                          );
+                        }
                         if (!snapshot.hasData)
                           return const Center(
                             child: CircularProgressIndicator(),
                           );
+                        if (snapshot.data!.docs.isEmpty) {
+                          return const Center(
+                            child: Text('No hay productos registrados.'),
+                          );
+                        }
 
                         return SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
@@ -341,6 +375,7 @@ class _PantallaProductosState extends State<PantallaProductos> {
                             columns: const [
                               DataColumn(label: Text('Clave')),
                               DataColumn(label: Text('Nombre')),
+                              DataColumn(label: Text('Categoría')),
                               DataColumn(label: Text('Precio')),
                               DataColumn(label: Text('Tipo')),
                             ],
@@ -358,11 +393,17 @@ class _PantallaProductosState extends State<PantallaProductos> {
                                     _costoController.text = d['costo']
                                         .toString();
                                     tipoSeleccionado = d['tipo'] ?? 'ELAB';
+                                    categoriaSeleccionada =
+                                        CatalogoMenu.categoriaPorNombre(
+                                          d['categoria']?.toString() ?? '',
+                                        )?.nombre ??
+                                        CatalogoMenu.categorias.first.nombre;
                                   });
                                 },
                                 cells: [
                                   DataCell(Text(doc.id)),
                                   DataCell(Text(d['nombre'] ?? '')),
+                                  DataCell(Text(d['categoria'] ?? '')),
                                   DataCell(Text('\$${d['precio']}')),
                                   DataCell(Text(d['tipo'] ?? '')),
                                 ],

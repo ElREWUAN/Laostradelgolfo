@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../responsive.dart';
 import '../ui/brand.dart';
+import '../catalogo_menu.dart';
 
 class PantallaComanda extends StatefulWidget {
   final String nombreMesa;
@@ -17,63 +18,15 @@ class _PantallaComandaState extends State<PantallaComanda> {
   Stream<QuerySnapshot>? _productosStream;
   bool _procesando = false;
 
-  final List<Map<String, dynamic>> _secciones = [
-    {
-      'nombre': 'ENTRADAS',
-      'icono': Icons.restaurant_menu,
-      'color': Colors.orange,
-    },
-    {'nombre': 'COCTELES', 'icono': Icons.local_bar, 'color': Colors.redAccent},
-    {
-      'nombre': 'SOPAS Y CHILPACHOLES',
-      'icono': Icons.soup_kitchen,
-      'color': Colors.deepOrange,
-    },
-    {
-      'nombre': 'ESPECIALIDADES',
-      'icono': Icons.star,
-      'color': Colors.amber[700],
-    },
-    {
-      'nombre': 'CAMARONES CONCHA',
-      'icono': Icons.set_meal,
-      'color': Colors.teal,
-    },
-    {
-      'nombre': 'CAMARONES PULPA',
-      'icono': Icons.set_meal_outlined,
-      'color': Colors.cyan,
-    },
-    {'nombre': 'PULPOS', 'icono': Icons.waves, 'color': Colors.indigo},
-    {
-      'nombre': 'ROBALO Y PESCADOS',
-      'icono': Icons.sailing,
-      'color': Colors.blue,
-    },
-    {'nombre': 'ENSALADAS', 'icono': Icons.eco, 'color': Colors.green},
-    {'nombre': 'CARNES', 'icono': Icons.lunch_dining, 'color': Colors.brown},
-    {
-      'nombre': 'INFANTILES',
-      'icono': Icons.child_care,
-      'color': Colors.pinkAccent,
-    },
-    {
-      'nombre': 'POSTRES',
-      'icono': Icons.icecream,
-      'color': Colors.purpleAccent,
-    },
-    {'nombre': 'CAFE', 'icono': Icons.coffee, 'color': Colors.brown[800]},
-    {
-      'nombre': 'BEBIDAS',
-      'icono': Icons.local_drink,
-      'color': Colors.lightBlue,
-    },
-    {
-      'nombre': 'BAR Y LICORES',
-      'icono': Icons.wine_bar,
-      'color': Colors.deepPurple,
-    },
-  ];
+  final List<Map<String, dynamic>> _secciones = CatalogoMenu.categorias
+      .map(
+        (categoria) => {
+          'nombre': categoria.nombre,
+          'icono': categoria.icono,
+          'color': categoria.color,
+        },
+      )
+      .toList();
 
   void _agregarAlCarrito(Map<String, dynamic> producto) {
     setState(() {
@@ -196,7 +149,7 @@ class _PantallaComandaState extends State<PantallaComanda> {
       builder: (context) => AlertDialog(
         title: const Text(
           'Nota Especial al Platillo',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Brand.teal),
         ),
         content: TextField(
           controller: notaCtrl,
@@ -289,7 +242,7 @@ class _PantallaComandaState extends State<PantallaComanda> {
                   child: IconButton(
                     icon: const Icon(
                       Icons.arrow_back_ios,
-                      color: Color(0xFF0F172A),
+                      color: Brand.ink,
                     ),
                     onPressed: () => setState(() {
                       _categoriaActiva = null;
@@ -305,7 +258,7 @@ class _PantallaComandaState extends State<PantallaComanda> {
                   style: const TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0F172A),
+                    color: Brand.ink,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -377,7 +330,7 @@ class _PantallaComandaState extends State<PantallaComanda> {
             'PEDIDOS ENVIADOS',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.blueGrey,
+              color: Brand.muted,
               fontSize: 12,
             ),
           ),
@@ -714,7 +667,7 @@ class _PantallaComandaState extends State<PantallaComanda> {
                 horizontal: 10,
               ),
               decoration: BoxDecoration(
-                color: Colors.blueGrey[50],
+                color: Brand.background,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -724,14 +677,14 @@ class _PantallaComandaState extends State<PantallaComanda> {
                     'TOTAL PREVIO:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
+                      color: Brand.muted,
                     ),
                   ),
                   Text(
                     '\$${granTotalPrevio.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.blueGrey,
+                      color: Brand.muted,
                     ),
                   ),
                 ],
@@ -793,7 +746,7 @@ class _PantallaComandaState extends State<PantallaComanda> {
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 13,
-                    color: Color(0xFF1E293B),
+                    color: Brand.ink,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -809,10 +762,28 @@ class _PantallaComandaState extends State<PantallaComanda> {
     return StreamBuilder<QuerySnapshot>(
       stream: _productosStream,
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('Error al cargar productos: ${snapshot.error}'),
+          );
+        }
         if (snapshot.connectionState == ConnectionState.waiting)
           return const Center(child: CircularProgressIndicator());
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
+        if (!snapshot.hasData)
           return const Center(child: Text('No hay platillos en esta sección'));
+        final productos = snapshot.data!.docs.where((doc) {
+          final datos = doc.data() as Map<String, dynamic>;
+          return datos['tipo']?.toString() != 'INGREDIEN';
+        }).toList();
+        if (productos.isEmpty) {
+          return const Center(
+            child: Text(
+              'No hay platillos en esta sección. '
+              'Revisa el catálogo desde Productos.',
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
         int columnas = Responsive.gridColumns(
           MediaQuery.sizeOf(context).width,
           phone: 2,
@@ -827,9 +798,9 @@ class _PantallaComandaState extends State<PantallaComanda> {
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),
-          itemCount: snapshot.data!.docs.length,
+          itemCount: productos.length,
           itemBuilder: (context, index) {
-            var doc = snapshot.data!.docs[index];
+            var doc = productos[index];
             var prod = doc.data() as Map<String, dynamic>;
             return InkWell(
               onTap: () {

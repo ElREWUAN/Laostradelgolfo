@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../catalogo_menu.dart';
+import '../ui/brand.dart';
 
 class CargaMasiva extends StatelessWidget {
   CargaMasiva({super.key});
@@ -89,29 +91,88 @@ class CargaMasiva extends StatelessWidget {
     }
   }
 
+  Future<void> _subirMenu(BuildContext context) async {
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final batch = firestore.batch();
+      final productos = CatalogoMenu.productos;
+
+      if (productos.length > 500) {
+        throw StateError('El menú supera el límite de 500 productos por lote.');
+      }
+
+      for (final producto in productos) {
+        batch.set(
+          firestore.collection('productos').doc(producto.clave),
+          producto.toFirestore(),
+        );
+      }
+
+      await batch.commit();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Menú cargado correctamente: ${productos.length} productos.',
+            ),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error al cargar el menú: $e')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: Brand.background,
       appBar: AppBar(
         title: const Text('Inyección de Insumos'),
-        backgroundColor: Colors.indigo,
+        backgroundColor: Brand.navy,
       ),
       body: Center(
-        child: ElevatedButton.icon(
-          onPressed: () => _subirTodo(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.amber,
-            padding: const EdgeInsets.all(20),
-          ),
-          icon: const Icon(Icons.kitchen, color: Colors.black, size: 30),
-          label: const Text(
-            'INYECTAR MATERIA PRIMA',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => _subirTodo(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber,
+                  padding: const EdgeInsets.all(20),
+                ),
+                icon: const Icon(Icons.kitchen, color: Colors.black, size: 30),
+                label: const Text(
+                  'INYECTAR MATERIA PRIMA',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => _subirMenu(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Brand.teal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(20),
+                ),
+                icon: const Icon(Icons.restaurant_menu, size: 30),
+                label: const Text(
+                  'CARGAR MENÚ',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
         ),
       ),
